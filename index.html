@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>កម្មវិធីគ្រប់គ្រងការលក់ផ្លែឈើ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HTML2PDF CDN for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Preahvihear&display=swap');
+        body {
+            font-family: 'Preahvihear', sans-serif;
+            background-color: #f7fee7;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Message box styling */
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            display: none;
+        }
+        /* CSS for PDF export and print */
+        .pdf-export-container {
+            display: none;
+            width: 29.7cm; /* A4 landscape width */
+            height: 21cm; /* A4 landscape height */
+            box-sizing: border-box;
+            position: relative;
+        }
+        .pdf-export-container.visible {
+            display: flex;
+            flex-direction: row; 
+            justify-content: center;
+            align-items: flex-start;
+            padding: 1cm;
+        }
+        .pdf-invoice-content {
+            box-shadow: none;
+            border: none;
+            width: 13.85cm; /* Adjusted width for A5 landscape side by side */
+            padding: 0.5cm;
+            box-sizing: border-box;
+        }
+        .signature-line {
+            border-bottom: 1px solid #6b7280;
+        }
+        .dotted-divider {
+            border-left: 2px dashed #d1d5db;
+            height: 100%;
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+        .qr-code-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+        .qr-code-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-lime-50 min-h-screen flex items-center justify-center p-4">
+    <!-- Main application UI, hidden during PDF export -->
+    <div id="main-app" class="bg-white shadow-xl rounded-2xl p-6 md:p-10 w-full max-w-5xl">
+        <h1 class="text-3xl md:text-4xl font-bold text-center text-lime-800 mb-6">កម្មវិធីគ្រប់គ្រងការលក់ផ្លែឈើ</h1>
+        <p class="text-center text-gray-600 mb-2">សូមស្វាគមន៍! ប្រើកម្មវិធីនេះដើម្បីគ្រប់គ្រងការលក់ផ្លែឈើ។</p>
+        <p class="text-center text-gray-600 mb-4">អ្នករៀបរៀងកម្មវិធី៖​ ហ៊ាន សុម៉ូនី​ ទំនាក់សរសេរកម្មវិធីតាមលេខទូរស័ព្ទ៖ ០៩៦៧២៤៨៨៨១</p>
+
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-lime-200 mb-8">
+            <button class="tab-button flex-1 py-3 px-2 md:px-6 text-center text-lg md:text-xl font-semibold rounded-t-lg transition-colors duration-200 ease-in-out bg-lime-100 text-lime-800 border-b-4 border-lime-600" data-tab="order">
+                កត់ត្រាការកម្ម៉ង់
+            </button>
+            <button class="tab-button flex-1 py-3 px-2 md:px-6 text-center text-lg md:text-xl font-semibold rounded-t-lg transition-colors duration-200 ease-in-out hover:bg-lime-50" data-tab="invoice">
+                វិក្កយបត្រ
+            </button>
+            <button class="tab-button flex-1 py-3 px-2 md:px-6 text-center text-lg md:text-xl font-semibold rounded-t-lg transition-colors duration-200 ease-in-out hover:bg-lime-50" data-tab="preorders">
+                បញ្ជីកម្ម៉ង់មុន
+            </button>
+        </div>
+
+        <!-- Content for Tab 1: Order Form -->
+        <div id="order" class="tab-content active">
+            <h2 class="text-2xl font-bold text-lime-700 mb-4">កត់ត្រាការកម្ម៉ង់</h2>
+            <form id="orderForm" class="space-y-4">
+                <div>
+                    <label for="customerName" class="block text-sm font-medium text-gray-700">ឈ្មោះអតិថិជន:</label>
+                    <input type="text" id="customerName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lime-500 focus:ring focus:ring-lime-200 focus:ring-opacity-50 p-2">
+                </div>
+                <div>
+                    <label for="orderDate" class="block text-sm font-medium text-gray-700">កាលបរិច្ឆេទ:</label>
+                    <input type="date" id="orderDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lime-500 focus:ring focus:ring-lime-200 focus:ring-opacity-50 p-2">
+                </div>
+                <div>
+                    <label for="orderNumber" class="block text-sm font-medium text-gray-700">លេខរៀងការកម្ម៉ង់:</label>
+                    <input type="number" id="orderNumber" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lime-500 focus:ring focus:ring-lime-200 focus:ring-opacity-50 p-2">
+                </div>
+                
+                <h3 class="text-xl font-bold text-lime-700 mt-6 mb-2">បញ្ជីផ្លែឈើ</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                        <thead class="bg-lime-100">
+                            <tr>
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                    ជ្រើសរើស
+                                </th>
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                    ឈ្មោះផ្លែឈើ
+                                </th>
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                    តម្លៃ (៛/គីឡូ)
+                                </th>
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                    បរិមាណ (គីឡូ)
+                                </th>
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                    តម្លៃសរុប (៛)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="fruitTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Fruit rows will be inserted here by JavaScript -->
+                        </tbody>
+                        <tfoot class="bg-lime-100 font-bold">
+                            <tr>
+                                <td colspan="3" class="px-3 py-3 text-right text-sm text-lime-800">
+                                    តម្លៃសរុប (គីឡូ):
+                                </td>
+                                <td id="totalKilo" class="px-3 py-3 text-left text-sm text-lime-800">0</td>
+                                <td id="totalAmount" class="px-3 py-3 text-left text-sm text-lime-800">0៛</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <div class="flex justify-between mt-6">
+                    <button type="button" onclick="resetForm()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105">
+                        សម្អាតទម្រង់
+                    </button>
+                    <div class="flex gap-4">
+                        <button type="button" id="saveOrderBtn" onclick="saveOrder()" class="bg-lime-600 hover:bg-lime-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105">
+                            រក្សាទុកការកម្ម៉ង់
+                        </button>
+                        <button type="button" id="saveChangesBtn" onclick="saveChanges()" class="hidden bg-lime-600 hover:bg-lime-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105">
+                            រក្សាទុកការកែប្រែ
+                        </button>
+                        <button type="button" id="saveNewInvoiceBtn" onclick="saveNewInvoice()" class="hidden bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105">
+                            រក្សាទុកវិក្កយបត្រថ្មី
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Content for Tab 2: Invoice -->
+        <div id="invoice" class="tab-content">
+            <div class="flex justify-between items-center mb-4">
+                <button type="button" onclick="goToOrderTab()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-transform transform hover:scale-105 text-sm">
+                    ត្រលប់ក្រោយ
+                </button>
+                <button type="button" onclick="resetInvoice()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-transform transform hover:scale-105 text-sm">
+                    សម្អាតវិក្កយបត្រ
+                </button>
+            </div>
+            <h2 class="text-2xl font-bold text-lime-700 mb-4">វិក្កយបត្រ</h2>
+            <p class="text-center text-red-500 mb-4">
+                សូមបំពេញទិន្នន័យក្នុងផ្នែក "កត់ត្រាការកម្ម៉ង់" ដើម្បីមើលវិក្កយបត្រ។
+            </p>
+            <div id="invoiceContent" class="hidden border border-gray-300 rounded-lg p-6 bg-white shadow-md">
+                <!-- New header layout for PDF export -->
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-shrink-0 qr-code-box">
+                        <img src="./images/ABA_RIEL.jpg" alt="QR Code" class="mx-auto mb-2 w-24 h-24">
+                         <!-- <img src="https://drive.google.com/uc?export=view&id=1NMeVIM3TfGU_yZulKisCcJ5M1mLIJ3Uj" alt="QR Code" class="mx-auto mb-2 w-24 h-24"> -->
+                        <!-- <p class="text-xs text-gray-500">QR Code 1</p> -->
+                    </div>
+                    <div class="text-center flex-1">
+                        <p class="text-lg font-semibold">ឈ្មោះហាង៖ បញ្ញា</p>
+                        <p class="text-sm text-gray-500">អាសយដ្ឋាន៖​​ ផ្សារបឹងកុក</p>
+                        <p class="text-sm text-gray-500">លេខទូរស័ព្ទ៖​ 097 24 27 479 / 070 70 16 68</p>
+                        <h3 class="text-xl font-bold mt-2">វិក្កយបត្រ</h3>
+                        <p class="text-sm mt-2">លេខរៀង: <span id="invoiceNumber"></span> | កាលបរិច្ឆេទ: <span id="invoiceDate"></span></p>
+                    </div>
+                    <div class="flex-shrink-0 qr-code-box">
+                        <img src="./images/ABA_DOLAR.jpg" alt="QR Code 2" class="mx-auto mb-2 w-24 h-24">
+                         <!-- <img src="https://drive.google.com/uc?export=view&id=1bX5b2FkDvCT3OX8IIHvtFJmTPfVqkumG" alt="QR Code 2" class="mx-auto mb-2 w-24 h-24"> -->
+                        <!-- <p class="text-xs text-gray-500">QR Code 2</p> -->
+                    </div>
+                </div>
+
+                <!-- Customer Info -->
+                <div class="mb-4 mt-2">
+                    <p class="font-semibold">អតិថិជន: <span id="invoiceCustomerName" class="font-normal"></span></p>
+                </div>
+
+                <!-- Invoice Items Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">ល.រ</th>
+                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">ឈ្មោះទំនិញ</th>
+                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">បរិមាណ (គីឡូ)</th>
+                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">ថ្លៃឯកតា</th>
+                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">សរុប</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceItemsTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Invoice items will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Invoice Totals -->
+                <div class="flex justify-end mt-2">
+                    <div class="w-full md:w-1/2 space-y-2">
+                        <div class="flex justify-between font-bold">
+                            <span>សរុប (៛):</span>
+                            <span id="invoiceTotalAmount">0៛</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer with signature placeholders -->
+                <div class="flex justify-between mt-3 text-center text-sm">
+                    <div>
+                        <p>ហត្ថលេខាអ្នកលក់</p>
+                        <div class="w-32 h-14 signature-line mt-4"></div>
+                    </div>
+                    <div>
+                        <p>ហត្ថលេខាអ្នកដឹក</p>
+                        <div class="w-32 h-14 signature-line mt-4"></div>
+                    </div>
+                    <div>
+                        <p>ហត្ថលេខាអ្នកទិញ</p>
+                        <div class="w-32 h-14 signature-line mt-4"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center mt-6">
+                <button type="button" onclick="exportToPdf()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105">
+                    បម្លែងទៅជា PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Content for Tab 3: Pre-orders -->
+        <div id="preorders" class="tab-content">
+            <div class="flex justify-between items-center mb-4">
+                <button type="button" onclick="goToOrderTab()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-transform transform hover:scale-105 text-sm">
+                    ត្រលប់ក្រោយ
+                </button>
+            </div>
+            <h2 class="text-2xl font-bold text-lime-700 mb-4">បញ្ជីកម្ម៉ង់មុន</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                    <thead class="bg-lime-100">
+                        <tr>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">ល.រ</th>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">ម៉ោង</th>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">ឈ្មោះអតិថិជន</th>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">បញ្ជីទំនិញ</th>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">តម្លៃសរុប (៛)</th>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">សកម្មភាព</th>
+                        </tr>
+                    </thead>
+                    <tbody id="preordersTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Pre-order rows will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Message Box/Modal -->
+    <div id="messageBox" class="message-box bg-white p-6 rounded-xl shadow-2xl border border-gray-200 text-center w-80">
+        <p id="messageText" class="text-gray-800 text-lg mb-4"></p>
+        <button onclick="hideMessage()" class="bg-lime-600 hover:bg-lime-700 text-white px-6 py-2 rounded-full font-bold transition-colors">
+            យល់ព្រម
+        </button>
+    </div>
+
+    <!-- Container for PDF export content only -->
+    <div id="pdf-container" class="pdf-export-container">
+        <!-- The cloned invoice content will be rendered here for PDF export -->
+    </div>
+
+
+    <script>
+        // Data for fruits with prices in Riel (៛)
+        const fruitData = [
+            { name: "មៀនខ្មែរ", price: 20000 },
+            { name: "មៀនយួន", price: 20000 },
+            { name: "ស្រកានាគស", price: 7000 },
+            { name: "ស្រកានាគក្រហម", price: 7000 },
+            { name: "ស្រកានាគគីមហុង", price: 7000 },
+            { name: "ប័រ", price: 30000 },
+            { name: "ក្រូចពោធិ៍សាត់", price: 20000 },
+            { name: "ក្រូចអាហ្សង់ទិន", price: 20000 },
+            { name: "ទំពាំងបាយជូ វែង", price: 20000 },
+            { name: "ទំពាំងបាយជូ ធំ", price: 20000 },
+            { name: "ទំពាំងបាយជូ ខ្មៅ", price: 20000 },
+            { name: "ទំពាំងបាយជូ ខៀវ", price: 20000 },
+            { name: "ទំពាំងបាយជូ ពងត្រី", price: 20000 },
+            { name: "ប៉ោម", price: 30000 },
+            { name: "yala", price: 100000 },
+            { name: "សារីស", price: 30000 },
+            { name: "សារីខៀវ", price: 30000 },
+            { name: "ស្តប៊ឺរី", price: 2000 },
+            { name: "ឈើរី", price: 150000 },
+            { name: "ល្មើ", price: 12000 },
+            { name: "មង្ឃុត", price: 3000 },
+            { name: "សាវម៉ាវ", price: 15000 },
+            { name: "ក្រូចតែ", price: 7000 },
+            { name: "ផាសិន", price: 20000 },
+            { name: "កន្ទឹម", price: 30000 },
+            { name: "ភ្ញៀវ", price: 10000 }
+        ];
+
+        let selectedOrder = null;
+        let editingOrderId = null; // Variable to store the ID of the order being edited
+        const localStorageKey = 'fruitPreorders';
+
+        // Function to show a custom message box
+        function showMessage(message) {
+            document.getElementById('messageText').textContent = message;
+            document.getElementById('messageBox').style.display = 'block';
+        }
+
+        // Function to hide the custom message box
+        function hideMessage() {
+            document.getElementById('messageBox').style.display = 'none';
+        }
+
+        // Function to create and render the fruit table in the order form
+        function renderFruitTable() {
+            const tbody = document.getElementById('fruitTableBody');
+            tbody.innerHTML = '';
+            fruitData.forEach((fruit, index) => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition-colors duration-150';
+                row.innerHTML = `
+                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                        <input type="checkbox" id="fruitCheck${index}" data-index="${index}" class="form-checkbox h-4 w-4 text-lime-600 rounded">
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        ${fruit.name}
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                        ${fruit.price.toLocaleString('km-KH')}៛
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                        <input type="number" min="0" value="0" data-index="${index}" class="kilo-input w-20 p-1 border rounded-md text-center bg-gray-50 focus:bg-white focus:outline-none disabled:bg-gray-200" disabled>
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 total-row-amount">
+                        0៛
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Add event listeners to checkboxes and kilo inputs
+            document.querySelectorAll('.kilo-input').forEach(input => {
+                input.addEventListener('input', updateOrderTotals);
+            });
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const index = e.target.dataset.index;
+                    const kiloInput = document.querySelector(`.kilo-input[data-index="${index}"]`);
+                    kiloInput.disabled = !e.target.checked;
+                    if (!e.target.checked) {
+                        kiloInput.value = 0;
+                    }
+                    updateOrderTotals();
+                });
+            });
+        }
+
+        // Function to update the total kilos and total amount in the form
+        function updateOrderTotals() {
+            let totalKilos = 0;
+            let totalAmount = 0;
+            const rows = document.getElementById('fruitTableBody').children;
+            
+            for (let i = 0; i < rows.length; i++) {
+                const checkbox = rows[i].querySelector('input[type="checkbox"]');
+                const kiloInput = rows[i].querySelector('.kilo-input');
+                const totalRowAmountSpan = rows[i].querySelector('.total-row-amount');
+                
+                const kilos = checkbox.checked ? parseFloat(kiloInput.value) || 0 : 0;
+                const price = fruitData[i].price;
+                const rowTotal = kilos * price;
+
+                totalKilos += kilos;
+                totalAmount += rowTotal;
+
+                totalRowAmountSpan.textContent = `${rowTotal.toLocaleString('km-KH')}៛`;
+            }
+
+            document.getElementById('totalKilo').textContent = totalKilos.toLocaleString('km-KH');
+            document.getElementById('totalAmount').textContent = `${totalAmount.toLocaleString('km-KH')}៛`;
+        }
+        
+        // Function to reset the order form
+        function resetForm() {
+            const form = document.getElementById('orderForm');
+            form.reset();
+            renderFruitTable(); // Re-render the table to reset inputs and totals
+            editingOrderId = null;
+            document.getElementById('saveOrderBtn').classList.remove('hidden');
+            document.getElementById('saveChangesBtn').classList.add('hidden');
+        }
+
+        // Function to save a new order
+        function saveOrder() {
+            const customerName = document.getElementById('customerName').value;
+            const orderDate = document.getElementById('orderDate').value;
+            const orderNumber = document.getElementById('orderNumber').value;
+            const items = [];
+            let totalKilos = 0;
+            let totalAmount = 0;
+
+            document.querySelectorAll('#fruitTableBody tr').forEach((row, index) => {
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                if (checkbox.checked) {
+                    const kiloInput = row.querySelector('.kilo-input');
+                    const fruit = fruitData[index];
+                    const kilos = parseFloat(kiloInput.value);
+                    const itemTotal = kilos * fruit.price;
+
+                    items.push({
+                        name: fruit.name,
+                        kilos: kilos,
+                        price: fruit.price,
+                        total: itemTotal
+                    });
+
+                    totalKilos += kilos;
+                    totalAmount += itemTotal;
+                }
+            });
+
+            if (!customerName || !orderDate || !orderNumber || items.length === 0) {
+                showMessage('សូមបំពេញព័ត៌មានអតិថិជន និងជ្រើសរើសផ្លែឈើយ៉ាងហោចណាស់មួយប្រភេទ។');
+                return;
+            }
+
+            const newOrder = {
+                id: Date.now(), // Unique ID for the order
+                customerName,
+                orderDate,
+                orderNumber,
+                items,
+                totalKilos,
+                totalAmount,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Get existing orders, add new one, and save to localStorage
+            const existingOrders = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+            existingOrders.push(newOrder);
+            localStorage.setItem(localStorageKey, JSON.stringify(existingOrders));
+
+            showMessage('ការកម្ម៉ង់ត្រូវបានរក្សាទុកដោយជោគជ័យ!');
+            
+            // Set the new order as selected for invoice tab
+            selectedOrder = newOrder;
+
+            // Switch to invoice tab and render it
+            document.querySelector('[data-tab="invoice"]').click();
+        }
+
+        // Function to save changes to an existing order
+        function saveChanges() {
+            if (!editingOrderId) {
+                showMessage('មិនមានការកម្ម៉ង់ណាមួយត្រូវបានជ្រើសរើសដើម្បីកែប្រែទេ។');
+                return;
+            }
+
+            const customerName = document.getElementById('customerName').value;
+            const orderDate = document.getElementById('orderDate').value;
+            const orderNumber = document.getElementById('orderNumber').value;
+            const items = [];
+            let totalKilos = 0;
+            let totalAmount = 0;
+
+            document.querySelectorAll('#fruitTableBody tr').forEach((row, index) => {
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                if (checkbox.checked) {
+                    const kiloInput = row.querySelector('.kilo-input');
+                    const fruit = fruitData[index];
+                    const kilos = parseFloat(kiloInput.value);
+                    const itemTotal = kilos * fruit.price;
+
+                    items.push({
+                        name: fruit.name,
+                        kilos: kilos,
+                        price: fruit.price,
+                        total: itemTotal
+                    });
+
+                    totalKilos += kilos;
+                    totalAmount += itemTotal;
+                }
+            });
+
+            if (!customerName || !orderDate || !orderNumber || items.length === 0) {
+                showMessage('សូមបំពេញព័ត៌មានអតិថិជន និងជ្រើសរើសផ្លែឈើយ៉ាងហោចណាស់មួយប្រភេទ។');
+                return;
+            }
+            
+            const orders = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+            const orderIndex = orders.findIndex(order => order.id === editingOrderId);
+            if (orderIndex !== -1) {
+                orders[orderIndex] = {
+                    ...orders[orderIndex], // Keep existing properties
+                    customerName,
+                    orderDate,
+                    orderNumber,
+                    items,
+                    totalKilos,
+                    totalAmount
+                };
+                localStorage.setItem(localStorageKey, JSON.stringify(orders));
+                showMessage('ការកម្ម៉ង់ត្រូវបានកែប្រែដោយជោគជ័យ!');
+                resetForm();
+                goToPreordersTab();
+            } else {
+                showMessage('មិនអាចរកឃើញការកម្ម៉ង់ដើម្បីកែប្រែទេ។');
+            }
+        }
+        
+        // Function to create a new invoice from current form data
+        function saveNewInvoice() {
+            const customerName = document.getElementById('customerName').value;
+            const orderDate = document.getElementById('orderDate').value;
+            const orderNumber = document.getElementById('orderNumber').value;
+            const items = [];
+            let totalKilos = 0;
+            let totalAmount = 0;
+        
+            document.querySelectorAll('#fruitTableBody tr').forEach((row, index) => {
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                if (checkbox.checked) {
+                    const kiloInput = row.querySelector('.kilo-input');
+                    const fruit = fruitData[index];
+                    const kilos = parseFloat(kiloInput.value);
+                    const itemTotal = kilos * fruit.price;
+        
+                    items.push({
+                        name: fruit.name,
+                        kilos: kilos,
+                        price: fruit.price,
+                        total: itemTotal
+                    });
+        
+                    totalKilos += kilos;
+                    totalAmount += itemTotal;
+                }
+            });
+        
+            if (!customerName || !orderDate || !orderNumber || items.length === 0) {
+                showMessage('សូមបំពេញព័ត៌មានអតិថិជន និងជ្រើសរើសផ្លែឈើយ៉ាងហោចណាស់មួយប្រភេទ។');
+                return;
+            }
+        
+            // Create a temporary order object for the invoice
+            const tempOrder = {
+                customerName,
+                orderDate,
+                orderNumber,
+                items,
+                totalKilos,
+                totalAmount,
+            };
+        
+            selectedOrder = tempOrder;
+            showMessage('វិក្កយបត្រថ្មីត្រូវបានបង្កើត!');
+            document.querySelector('[data-tab="invoice"]').click();
+        }
+
+        // Function to load an order into the form for editing
+        function editOrder(id) {
+            const orders = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+            const orderToEdit = orders.find(order => order.id === id);
+            
+            if (orderToEdit) {
+                // Set the form fields
+                document.getElementById('customerName').value = orderToEdit.customerName;
+                document.getElementById('orderDate').value = orderToEdit.orderDate;
+                document.getElementById('orderNumber').value = orderToEdit.orderNumber;
+                
+                // Reset the fruit table first
+                renderFruitTable();
+
+                // Populate fruit table from the order
+                orderToEdit.items.forEach(item => {
+                    const fruitIndex = fruitData.findIndex(f => f.name === item.name);
+                    if (fruitIndex !== -1) {
+                        const checkbox = document.getElementById(`fruitCheck${fruitIndex}`);
+                        checkbox.checked = true;
+                        
+                        const kiloInput = document.querySelector(`.kilo-input[data-index="${fruitIndex}"]`);
+                        kiloInput.disabled = false;
+                        kiloInput.value = item.kilos;
+                    }
+                });
+
+                updateOrderTotals();
+                editingOrderId = id;
+                document.getElementById('saveOrderBtn').classList.add('hidden');
+                document.getElementById('saveChangesBtn').classList.remove('hidden');
+                document.getElementById('saveNewInvoiceBtn').classList.remove('hidden');
+                goToOrderTab();
+            } else {
+                showMessage('មិនអាចរកឃើញការកម្ម៉ង់ដើម្បីកែប្រែទេ។');
+            }
+        }
+
+        // Function to delete an order by ID
+        function deleteOrder(id) {
+            const orders = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+            if (orders.length > 0) {
+                const updatedOrders = orders.filter(order => order.id !== id);
+                localStorage.setItem(localStorageKey, JSON.stringify(updatedOrders));
+                renderPreorders();
+                showMessage('ការកម្ម៉ង់ត្រូវបានលុបដោយជោគជ័យ!');
+            }
+        }
+
+        // Function to render the invoice based on saved data
+        function renderInvoice() {
+            const invoiceContentDiv = document.getElementById('invoiceContent');
+            const placeholderText = document.querySelector('#invoice .text-red-500');
+            const totalAmountSpan = document.getElementById('invoiceTotalAmount');
+
+            if (!selectedOrder) {
+                if (invoiceContentDiv) invoiceContentDiv.classList.add('hidden');
+                if (placeholderText) placeholderText.classList.remove('hidden');
+                if (totalAmountSpan) totalAmountSpan.textContent = '0៛';
+                return;
+            }
+            
+            if (invoiceContentDiv) invoiceContentDiv.classList.remove('hidden');
+            if (placeholderText) placeholderText.classList.add('hidden');
+            
+            // Populate customer and order info
+            if (document.getElementById('invoiceCustomerName')) document.getElementById('invoiceCustomerName').textContent = selectedOrder.customerName;
+            if (document.getElementById('invoiceDate')) document.getElementById('invoiceDate').textContent = selectedOrder.orderDate;
+            if (document.getElementById('invoiceNumber')) document.getElementById('invoiceNumber').textContent = selectedOrder.orderNumber;
+            
+            // Populate invoice items
+            const invoiceTableBody = document.getElementById('invoiceItemsTableBody');
+            if (invoiceTableBody) {
+                invoiceTableBody.innerHTML = '';
+                
+                selectedOrder.items.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-4 py-2 text-sm text-gray-900">${index + 1}</td>
+                        <td class="px-4 py-2 text-sm text-gray-900">${item.name}</td>
+                        <td class="px-4 py-2 text-sm text-gray-900">${item.kilos.toLocaleString('km-KH')}</td>
+                        <td class="px-4 py-2 text-sm text-gray-900">${item.price.toLocaleString('km-KH')}៛</td>
+                        <td class="px-4 py-2 text-sm text-gray-900">${item.total.toLocaleString('km-KH')}៛</td>
+                    `;
+                    invoiceTableBody.appendChild(row);
+                });
+            }
+            
+            // Populate total amount
+            if (totalAmountSpan) totalAmountSpan.textContent = `${selectedOrder.totalAmount.toLocaleString('km-KH')}៛`;
+        }
+        
+        // Function to reset the invoice tab
+        function resetInvoice() {
+            selectedOrder = null;
+            document.getElementById('invoiceContent').classList.add('hidden');
+            document.querySelector('#invoice .text-red-500').classList.remove('hidden');
+        }
+
+        // Function to render the list of pre-orders from localStorage
+        function renderPreorders() {
+            const preordersTableBody = document.getElementById('preordersTableBody');
+            preordersTableBody.innerHTML = ''; // Clear table
+            
+            const orders = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+            
+            if (orders.length === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `<td colspan="6" class="px-4 py-2 text-center text-gray-500">មិនទាន់មានការកម្ម៉ង់ណាមួយត្រូវបានរក្សាទុកទេ។</td>`;
+                preordersTableBody.appendChild(emptyRow);
+                return;
+            }
+            
+            // Sort orders by timestamp in descending order (newest first)
+            orders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            orders.forEach((order, index) => {
+                const itemNames = order.items.map(item => `${item.name} (${item.kilos}គីឡូ)`).join(', ');
+                const orderTime = new Date(order.timestamp).toLocaleString('km-KH', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+                
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-4 py-2 text-sm text-gray-900 cursor-pointer" onclick="viewOrderDetails(${order.id})">${order.orderNumber}</td>
+                    <td class="px-4 py-2 text-sm text-gray-900">${orderTime}</td>
+                    <td class="px-4 py-2 text-sm text-gray-900">${order.customerName}</td>
+                    <td class="px-4 py-2 text-sm text-gray-900">${itemNames}</td>
+                    <td class="px-4 py-2 text-sm text-gray-900">${order.totalAmount.toLocaleString('km-KH')}៛</td>
+                    <td class="px-4 py-2 text-sm text-gray-900 flex gap-2">
+                        <button onclick="editOrder(${order.id})" class="text-blue-500 hover:text-blue-700 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-3.832 9.77a.5.5 0 01-.176.22l-1.63 1.63a.5.5 0 00-.176.22L7.382 17.5a.5.5 0 00.612.612l2.356-.725a.5.5 0 00.22-.176l1.63-1.63a.5.5 0 00.176-.22l.725-2.356a.5.5 0 00-.612-.612l-2.356.725z" />
+                            </svg>
+                        </button>
+                        <button onclick="deleteOrder(${order.id})" class="text-red-500 hover:text-red-700 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <button onclick="exportTwoUpLandscape(${order.id})" class="text-green-500 hover:text-green-700 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414-1.414L9 8.586V4a1 1 0 112 0v4.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </td>
+                `;
+                preordersTableBody.appendChild(row);
+            });
+        }
+        
+        // Function to view order details when clicking on an order number
+        function viewOrderDetails(id) {
+            const orders = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                selectedOrder = order;
+                document.querySelector('[data-tab="invoice"]').click();
+            } else {
+                showMessage('មិនអាចរកឃើញការកម្ម៉ង់នេះទេ។');
+            }
+        }
+
+
+        // Function to go back to the order tab
+        function goToOrderTab() {
+            document.querySelector('[data-tab="order"]').click();
+        }
+
+        // Function to go to the pre-orders tab
+        function goToPreordersTab() {
+            document.querySelector('[data-tab="preorders"]').click();
+        }
+
+        // Function to export two invoices on a single landscape A4 page
+        function exportTwoUpLandscape(id) {
+            let orderToExport = selectedOrder;
+            if (id) {
+                const orders = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+                orderToExport = orders.find(o => o.id === id);
+            }
+
+            if (!orderToExport) {
+                showMessage('សូមកត់ត្រាការកម្ម៉ង់សិនមុននឹងបម្លែងទៅជា PDF!');
+                return;
+            }
+
+            // Create a temporary element for PDF export
+            const pdfContainer = document.getElementById('pdf-container');
+            const invoiceHtml = document.getElementById('invoiceContent').innerHTML;
+
+            // Create two copies of the invoice content
+            const invoice1 = document.createElement('div');
+            invoice1.classList.add('pdf-invoice-content');
+            invoice1.innerHTML = invoiceHtml;
+            
+            const invoice2 = document.createElement('div');
+            invoice2.classList.add('pdf-invoice-content');
+            invoice2.innerHTML = invoiceHtml;
+            
+            pdfContainer.innerHTML = ''; // Clear previous content
+            pdfContainer.appendChild(invoice1);
+            
+            // Add dotted divider
+            const divider = document.createElement('div');
+            divider.classList.add('dotted-divider');
+            pdfContainer.appendChild(divider);
+
+            pdfContainer.appendChild(invoice2);
+
+            pdfContainer.classList.add('visible');
+            document.getElementById('main-app').style.display = 'none'; // Hide main app
+
+            // Use a slight delay to ensure all content is rendered before conversion
+            setTimeout(() => {
+                html2pdf().set({
+                    margin: 0,
+                    filename: `វិក្កយបត្រ_កម្ម៉ង់លេខ_${orderToExport.orderNumber}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { 
+                        scale: 2, 
+                        logging: false,
+                        scrollY: 0,
+                        scrollX: 0,
+                        useCORS: true // This is crucial for images to load correctly
+                    },
+                    jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+                }).from(pdfContainer).save().finally(() => {
+                    pdfContainer.innerHTML = ''; // Clean up
+                    pdfContainer.classList.remove('visible');
+                    document.getElementById('main-app').style.display = 'block'; // Show main app again
+                });
+            }, 100); // 100ms delay
+        }
+
+        // Tab switching logic
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tab = button.dataset.tab;
+                
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Deactivate all tab buttons
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('bg-lime-100', 'text-lime-800', 'border-lime-600');
+                    btn.classList.add('bg-white', 'text-gray-500', 'hover:bg-lime-50');
+                });
+                
+                // Activate the selected tab button and content
+                document.getElementById(tab).classList.add('active');
+                button.classList.add('bg-lime-100', 'text-lime-800', 'border-lime-600');
+                button.classList.remove('bg-white', 'text-gray-500', 'hover:bg-lime-50');
+                
+                if (tab === 'invoice') {
+                    renderInvoice();
+                } else if (tab === 'preorders') {
+                    renderPreorders();
+                }
+            });
+        });
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFruitTable();
+        });
+    </script>
+</body>
+</html>
