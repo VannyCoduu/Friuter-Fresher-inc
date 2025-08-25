@@ -82,7 +82,7 @@
     <div id="main-app" class="bg-white shadow-xl rounded-2xl p-6 md:p-10 w-full max-w-5xl">
         <h1 class="text-3xl md:text-4xl font-bold text-center text-lime-800 mb-6">កម្មវិធីគ្រប់គ្រងការលក់ផ្លែឈើ</h1>
         <p class="text-center text-gray-600 mb-2">សូមស្វាគមន៍! ប្រើកម្មវិធីនេះដើម្បីគ្រប់គ្រងការលក់ផ្លែឈើ។</p>
-        <p class="text-center text-gray-600 mb-4">អ្នករៀបរៀងកម្មវិធី៖​ ហ៊ាន សុម៉ូនី​ ទំនាក់សរសេរកម្មវិធីតាមលេខទូរស័ព្ទ៖ ០៩៦៧២៤៨៨៨១</p>
+        <p class="text-center text-gray-600 mb-4">អ្នករៀបរៀងកម្មវិធី៖​ ហ៊ាន សុម៉ូនី​ ទំនាក់ទំនងសរសេរកម្មវិធីតាមលេខទូរស័ព្ទ៖ ០៩៦៧២៤៨៨៨១</p>
 
         <!-- Tab Navigation -->
         <div class="flex border-b border-lime-200 mb-8">
@@ -103,7 +103,9 @@
             <form id="orderForm" class="space-y-4">
                 <div>
                     <label for="customerName" class="block text-sm font-medium text-gray-700">ឈ្មោះអតិថិជន:</label>
-                    <input type="text" id="customerName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lime-500 focus:ring focus:ring-lime-200 focus:ring-opacity-50 p-2">
+                    <select id="customerName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lime-500 focus:ring focus:ring-lime-200 focus:ring-opacity-50 p-2">
+                        <!-- Customer names will be populated by JavaScript -->
+                    </select>
                 </div>
                 <div>
                     <label for="orderDate" class="block text-sm font-medium text-gray-700">កាលបរិច្ឆេទ:</label>
@@ -111,10 +113,28 @@
                 </div>
                 <div>
                     <label for="orderNumber" class="block text-sm font-medium text-gray-700">លេខរៀងការកម្ម៉ង់:</label>
-                    <input type="number" id="orderNumber" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lime-500 focus:ring focus:ring-lime-200 focus:ring-opacity-50 p-2">
+                    <div class="flex items-center mt-1">
+                        <button type="button" onclick="decrementOrderNumber()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-l-md transition-colors">
+                            -
+                        </button>
+                        <input type="text" id="orderNumber" class="flex-1 block w-full rounded-none border-gray-300 shadow-sm focus:border-lime-500 focus:ring focus:ring-lime-200 focus:ring-opacity-50 p-2 text-center" value="N00001">
+                        <button type="button" onclick="incrementOrderNumber()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-r-md transition-colors">
+                            +
+                        </button>
+                    </div>
                 </div>
                 
-                <h3 class="text-xl font-bold text-lime-700 mt-6 mb-2">បញ្ជីផ្លែឈើ</h3>
+                <div class="flex justify-between items-center mt-6 mb-2">
+                    <h3 class="text-xl font-bold text-lime-700">បញ្ជីផ្លែឈើ</h3>
+                    <div class="flex space-x-2">
+                        <button type="button" id="editPricesBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-4 rounded-full text-xs transition-transform transform hover:scale-105">
+                            កែសម្រួលតម្លៃ
+                        </button>
+                        <button type="button" id="savePricesBtn" class="hidden bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-4 rounded-full text-xs transition-transform transform hover:scale-105">
+                            រក្សាទុកតម្លៃ
+                        </button>
+                    </div>
+                </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
                         <thead class="bg-lime-100">
@@ -188,9 +208,7 @@
                 <!-- New header layout for PDF export -->
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex-shrink-0 qr-code-box">
-                        <img src="./images/ABA_RIEL.jpg" alt="QR Code" class="mx-auto mb-2 w-24 h-24">
-                         <!-- <img src="https://drive.google.com/uc?export=view&id=1NMeVIM3TfGU_yZulKisCcJ5M1mLIJ3Uj" alt="QR Code" class="mx-auto mb-2 w-24 h-24"> -->
-                        <!-- <p class="text-xs text-gray-500">QR Code 1</p> -->
+                        <img src="https://placehold.co/96x96/f0f9ff/65a30d?text=QR_1" alt="QR Code" class="mx-auto mb-2 w-24 h-24">
                     </div>
                     <div class="text-center flex-1">
                         <p class="text-lg font-semibold">ឈ្មោះហាង៖ បញ្ញា</p>
@@ -200,9 +218,7 @@
                         <p class="text-sm mt-2">លេខរៀង: <span id="invoiceNumber"></span> | កាលបរិច្ឆេទ: <span id="invoiceDate"></span></p>
                     </div>
                     <div class="flex-shrink-0 qr-code-box">
-                        <img src="./images/ABA_DOLAR.jpg" alt="QR Code 2" class="mx-auto mb-2 w-24 h-24">
-                         <!-- <img src="https://drive.google.com/uc?export=view&id=1bX5b2FkDvCT3OX8IIHvtFJmTPfVqkumG" alt="QR Code 2" class="mx-auto mb-2 w-24 h-24"> -->
-                        <!-- <p class="text-xs text-gray-500">QR Code 2</p> -->
+                        <img src="https://placehold.co/96x96/f0f9ff/65a30d?text=QR_2" alt="QR Code 2" class="mx-auto mb-2 w-24 h-24">
                     </div>
                 </div>
 
@@ -306,7 +322,18 @@
 
 
     <script>
-        // Data for fruits with prices in Riel (៛)
+        // Array of customer names from the user's request
+        const customerNames = [
+            "ចែមំុ", "ចែឆេង", "ឣុីមួយ", "ឣុីងិម", "ចែឣូន", "ចែពេជ្រ", "ចែទន្លេបិទ", "ចែហួ", "ចែនី", "ចែភារ៉ា",
+            "ចែភ័ក្រ្ត", "ចែហ៊ាង", "ឣ៊ំទន្លេបិទ", "ឣុីខេង", "ឣុីភាពវត្ថឣង្គរ", "ឣុីណាង", "ចែនាងផ្សារធំ", "ស្រីលីស",
+            "ឣុីណាផ្សារធំ", "ចែឣូនផ្សារធំ", "ចែសុីណាត", "ចែផល", "ប្ឣូនចែផល", "ឣ៊ំហាន", "ឣុីធី", "ឣុីផល្លា",
+            "ចែណៃ", "ចែស្រស់", "ចែវ៉ាត", "ចែហុង", "ចែរ័ត្ន", "ឣុីភ័ណ្ឌ", "ចែសុខជា", "ចែសុខណា", "ឣ៊ំចន្ធូ",
+            "ឣ៊ំណុច", "ចែសុខលី", "ចែទី", "ចែរុណ", "ចែចំរើន", "ចែនីព្រែកចាន់", "ពូបាន", "ឣុីថា", "តាវ៉ែនតា",
+            "ចែធា", "ចែឡែន", "ឣុីធឿន", "ឣុីមំុផ្សារធំ", "ចែឡា", "តាកៅ", "ចែភាពផ្សារធំ", "ចែថុល 7មករា",
+            "ចែលាប", "ចែនិត", "ចែឣ៊ាង", "ចែនាងបឹងកុក", "ឣុីមំុបឹងកុក", "យាយហ៊ន់", "យាយថេង", "ឣ៊ំណាង", "ឣុីចន្ថា"
+        ];
+        
+        // Data for fruits with default prices in Riel (៛)
         const fruitData = [
             { name: "មៀនខ្មែរ", price: 20000 },
             { name: "មៀនយួន", price: 20000 },
@@ -339,6 +366,8 @@
         let selectedOrder = null;
         let editingOrderId = null; // Variable to store the ID of the order being edited
         const localStorageKey = 'fruitPreorders';
+        const lastOrderNumberKey = 'lastOrderNumber';
+        const customPricesKey = 'customFruitPrices';
 
         // Function to show a custom message box
         function showMessage(message) {
@@ -350,6 +379,65 @@
         function hideMessage() {
             document.getElementById('messageBox').style.display = 'none';
         }
+
+        // Function to load custom prices from localStorage and update fruitData
+        function loadPricesFromStorage() {
+            const storedPrices = JSON.parse(localStorage.getItem(customPricesKey)) || {};
+            fruitData.forEach(fruit => {
+                if (storedPrices[fruit.name]) {
+                    fruit.price = storedPrices[fruit.name];
+                }
+            });
+        }
+        
+        // Function to save custom prices to localStorage
+        function savePricesToStorage() {
+            const customPrices = {};
+            document.querySelectorAll('.price-input').forEach(input => {
+                const index = input.dataset.index;
+                const newPrice = parseFloat(input.value);
+                if (!isNaN(newPrice) && newPrice >= 0) {
+                    customPrices[fruitData[index].name] = newPrice;
+                }
+            });
+            localStorage.setItem(customPricesKey, JSON.stringify(customPrices));
+            showMessage('តម្លៃត្រូវបានរក្សាទុកដោយជោគជ័យ!');
+        }
+
+        // Function to toggle price editing mode
+        function togglePriceEditing(enable) {
+            const editBtn = document.getElementById('editPricesBtn');
+            const saveBtn = document.getElementById('savePricesBtn');
+            const priceCells = document.querySelectorAll('.fruit-price-cell');
+            
+            if (enable) {
+                editBtn.classList.add('hidden');
+                saveBtn.classList.remove('hidden');
+                priceCells.forEach(cell => {
+                    const price = parseFloat(cell.dataset.price);
+                    const index = cell.dataset.index;
+                    cell.innerHTML = `
+                        <input type="number" min="0" value="${price}" data-index="${index}" class="price-input w-24 p-1 border rounded-md text-center bg-gray-50 focus:bg-white focus:outline-none">
+                    `;
+                });
+            } else {
+                editBtn.classList.remove('hidden');
+                saveBtn.classList.add('hidden');
+                priceCells.forEach(cell => {
+                    const price = parseFloat(cell.dataset.price);
+                    cell.innerHTML = `${price.toLocaleString('km-KH')}៛`;
+                });
+            }
+        }
+        
+        // Event listeners for the price buttons
+        document.getElementById('editPricesBtn').addEventListener('click', () => togglePriceEditing(true));
+        document.getElementById('savePricesBtn').addEventListener('click', () => {
+            savePricesToStorage();
+            loadPricesFromStorage(); // Reload data with new prices
+            renderFruitTable(); // Re-render the table
+            togglePriceEditing(false); // Disable editing mode
+        });
 
         // Function to create and render the fruit table in the order form
         function renderFruitTable() {
@@ -365,7 +453,7 @@
                     <td class="px-3 py-2 whitespace-nowrap text-sm font-semibold text-gray-900">
                         ${fruit.name}
                     </td>
-                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 fruit-price-cell" data-price="${fruit.price}" data-index="${index}">
                         ${fruit.price.toLocaleString('km-KH')}៛
                     </td>
                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
@@ -422,9 +510,21 @@
         
         // Function to reset the order form
         function resetForm() {
-            const form = document.getElementById('orderForm');
-            form.reset();
-            renderFruitTable(); // Re-render the table to reset inputs and totals
+            // Reset customer and date fields
+            document.getElementById('customerName').value = '';
+            document.getElementById('orderDate').value = '';
+
+            // Reset fruit table inputs and checkboxes
+            document.querySelectorAll('#fruitTableBody tr').forEach(row => {
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                const kiloInput = row.querySelector('.kilo-input');
+                checkbox.checked = false;
+                kiloInput.value = '0';
+                kiloInput.disabled = true;
+            });
+
+            updateOrderTotals();
+            loadAndSetOrderNumber();
             editingOrderId = null;
             document.getElementById('saveOrderBtn').classList.remove('hidden');
             document.getElementById('saveChangesBtn').classList.add('hidden');
@@ -479,6 +579,10 @@
             const existingOrders = JSON.parse(localStorage.getItem(localStorageKey)) || [];
             existingOrders.push(newOrder);
             localStorage.setItem(localStorageKey, JSON.stringify(existingOrders));
+
+            // Update the last order number
+            const currentOrderNum = parseInt(orderNumber.replace('N', ''), 10);
+            localStorage.setItem(lastOrderNumberKey, currentOrderNum);
 
             showMessage('ការកម្ម៉ង់ត្រូវបានរក្សាទុកដោយជោគជ័យ!');
             
@@ -714,7 +818,7 @@
             // Sort orders by timestamp in descending order (newest first)
             orders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-            orders.forEach((order, index) => {
+            orders.forEach((order) => {
                 const itemNames = order.items.map(item => `${item.name} (${item.kilos}គីឡូ)`).join(', ');
                 const orderTime = new Date(order.timestamp).toLocaleString('km-KH', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
                 
@@ -734,7 +838,7 @@
                         </button>
                         <button onclick="deleteOrder(${order.id})" class="text-red-500 hover:text-red-700 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                              <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                             </svg>
                         </button>
                         <button onclick="exportTwoUpLandscape(${order.id})" class="text-green-500 hover:text-green-700 transition-colors">
@@ -756,7 +860,7 @@
                 selectedOrder = order;
                 document.querySelector('[data-tab="invoice"]').click();
             } else {
-                showMessage('មិនអាចរកឃើញការកម្ម៉ង់នេះទេ។');
+                showMessage('Không tìm thấy đơn hàng này.');
             }
         }
 
@@ -780,13 +884,36 @@
             }
 
             if (!orderToExport) {
-                showMessage('សូមកត់ត្រាការកម្ម៉ង់សិនមុននឹងបម្លែងទៅជា PDF!');
+                showMessage('Vui lòng ghi lại đơn hàng trước khi xuất ra PDF!');
                 return;
+            }
+            
+            // Populate the invoice content for cloning
+            const invoiceContentDiv = document.getElementById('invoiceContent');
+            if (invoiceContentDiv) {
+                document.getElementById('invoiceCustomerName').textContent = orderToExport.customerName;
+                document.getElementById('invoiceDate').textContent = orderToExport.orderDate;
+                document.getElementById('invoiceNumber').textContent = orderToExport.orderNumber;
+                
+                const invoiceTableBody = document.getElementById('invoiceItemsTableBody');
+                invoiceTableBody.innerHTML = '';
+                orderToExport.items.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-4 py-2 text-sm text-gray-900">${index + 1}</td>
+                        <td class="px-4 py-2 text-sm text-gray-900">${item.name}</td>
+                        <td class="px-4 py-2 text-sm text-gray-900">${item.kilos.toLocaleString('km-KH')}</td>
+                        <td class="px-4 py-2 text-sm text-gray-900">${item.price.toLocaleString('km-KH')}៛</td>
+                        <td class="px-4 py-2 text-sm text-gray-900">${item.total.toLocaleString('km-KH')}៛</td>
+                    `;
+                    invoiceTableBody.appendChild(row);
+                });
+                document.getElementById('invoiceTotalAmount').textContent = `${orderToExport.totalAmount.toLocaleString('km-KH')}៛`;
             }
 
             // Create a temporary element for PDF export
             const pdfContainer = document.getElementById('pdf-container');
-            const invoiceHtml = document.getElementById('invoiceContent').innerHTML;
+            const invoiceHtml = invoiceContentDiv.innerHTML;
 
             // Create two copies of the invoice content
             const invoice1 = document.createElement('div');
@@ -832,6 +959,52 @@
             }, 100); // 100ms delay
         }
 
+        // Function to populate the customer name dropdown
+        function populateCustomerDropdown() {
+            const select = document.getElementById('customerName');
+            select.innerHTML = '';
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'ជ្រើសរើសអតិថិជន...';
+            defaultOption.disabled = true;
+            defaultOption.selected = true;
+            select.appendChild(defaultOption);
+            
+            customerNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                select.appendChild(option);
+            });
+        }
+        
+        // Function to get and set the next order number
+        function loadAndSetOrderNumber() {
+            const lastNumber = parseInt(localStorage.getItem(lastOrderNumberKey)) || 0;
+            const nextNumber = lastNumber + 1;
+            const formattedNumber = 'N' + String(nextNumber).padStart(5, '0');
+            const orderNumberInput = document.getElementById('orderNumber');
+            orderNumberInput.value = formattedNumber;
+        }
+
+        // Function to increment the numeric part of the order number
+        function incrementOrderNumber() {
+            const orderNumberInput = document.getElementById('orderNumber');
+            const currentValue = orderNumberInput.value;
+            const numericPart = parseInt(currentValue.replace('N', '')) || 0;
+            const nextNumber = numericPart + 1;
+            orderNumberInput.value = 'N' + String(nextNumber).padStart(5, '0');
+        }
+
+        // Function to decrement the numeric part of the order number
+        function decrementOrderNumber() {
+            const orderNumberInput = document.getElementById('orderNumber');
+            const currentValue = orderNumberInput.value;
+            const numericPart = parseInt(currentValue.replace('N', '')) || 0;
+            const prevNumber = Math.max(1, numericPart - 1); // Ensure it doesn't go below 1
+            orderNumberInput.value = 'N' + String(prevNumber).padStart(5, '0');
+        }
+
         // Tab switching logic
         document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
@@ -863,6 +1036,9 @@
 
         // Initial setup
         document.addEventListener('DOMContentLoaded', () => {
+            populateCustomerDropdown();
+            loadAndSetOrderNumber();
+            loadPricesFromStorage();
             renderFruitTable();
         });
     </script>
