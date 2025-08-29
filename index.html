@@ -4,15 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>កម្មវិធីគ្រប់គ្រងការលក់ផ្លែឈើ</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- HTML2PDF CDN for PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Preahvihear&display=swap');
         body {
             font-family: 'Preahvihear', sans-serif;
-            background-color: #f7fee7;
+            background-color: #f7fee7; /* Lighter shade of the palette */
         }
         .tab-content {
             display: none;
@@ -28,6 +26,39 @@
             transform: translate(-50%, -50%);
             z-index: 1000;
             display: none;
+        }
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 1rem;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
         }
         /* CSS for PDF export and print */
         .pdf-export-container {
@@ -50,6 +81,7 @@
             width: 13.85cm; /* Adjusted width for A5 landscape side by side */
             padding: 0.5cm;
             box-sizing: border-box;
+            border: 1px solid #007200; /* Dark green border */
         }
         .signature-line {
             border-bottom: 1px solid #6b7280;
@@ -78,34 +110,38 @@
     </style>
 </head>
 <body class="bg-lime-50 min-h-screen flex items-center justify-center p-4">
-    <!-- Main application UI, hidden during PDF export -->
     <div id="main-app" class="bg-white shadow-xl rounded-2xl p-6 md:p-10 w-full max-w-5xl">
-        <h1 class="text-3xl md:text-4xl font-bold text-center text-lime-800 mb-6">កម្មវិធីគ្រប់គ្រងការលក់ផ្លែឈើ</h1>
+        <h1 class="text-3xl md:text-4xl font-bold text-center text-lime-800 mb-6" style="color: #006400;">កម្មវិធីគ្រប់គ្រងការលក់ផ្លែឈើ</h1>
         <p class="text-center text-gray-600 mb-2">សូមស្វាគមន៍! ប្រើកម្មវិធីនេះដើម្បីគ្រប់គ្រងការលក់ផ្លែឈើ។</p>
         <p class="text-center text-gray-600 mb-4">អ្នករៀបរៀងកម្មវិធី៖​ ហ៊ាន សុម៉ូនី​ ទំនាក់ទំនងសរសេរកម្មវិធីតាមលេខទូរស័ព្ទ៖ ០៩៦៧២៤៨៨៨១</p>
 
-        <!-- Tab Navigation -->
-        <div class="flex border-b border-lime-200 mb-8">
-            <button class="tab-button flex-1 py-3 px-2 md:px-6 text-center text-lg md:text-xl font-semibold rounded-t-lg transition-colors duration-200 ease-in-out bg-lime-100 text-lime-800 border-b-4 border-lime-600" data-tab="order">
+        <div class="flex border-b mb-8" style="border-color: #9ef01a;">
+            <button class="tab-button flex-1 py-3 px-2 md:px-6 text-center text-lg md:text-xl font-semibold rounded-t-lg transition-colors duration-200 ease-in-out bg-lime-100 text-lime-800 border-b-4" style="background-color: #70e000; color: white; border-color: #008000;" data-tab="order">
                 កត់ត្រាការកម្ម៉ង់
             </button>
-            <button class="tab-button flex-1 py-3 px-2 md:px-6 text-center text-lg md:text-xl font-semibold rounded-t-lg transition-colors duration-200 ease-in-out hover:bg-lime-50" data-tab="invoice">
+            <button class="tab-button flex-1 py-3 px-2 md:px-6 text-center text-lg md:text-xl font-semibold rounded-t-lg transition-colors duration-200 ease-in-out hover:bg-lime-50" style="color: #007200;" data-tab="invoice">
                 វិក្កយបត្រ
             </button>
-            <button class="tab-button flex-1 py-3 px-2 md:px-6 text-center text-lg md:text-xl font-semibold rounded-t-lg transition-colors duration-200 ease-in-out hover:bg-lime-50" data-tab="preorders">
+            <button class="tab-button flex-1 py-3 px-2 md:px-6 text-center text-lg md:text-xl font-semibold rounded-t-lg transition-colors duration-200 ease-in-out hover:bg-lime-50" style="color: #007200;" data-tab="preorders">
                 បញ្ជីកម្ម៉ង់មុន
             </button>
         </div>
 
-        <!-- Content for Tab 1: Order Form -->
         <div id="order" class="tab-content active">
-            <h2 class="text-2xl font-bold text-lime-700 mb-4">កត់ត្រាការកម្ម៉ង់</h2>
+            <h2 class="text-2xl font-bold mb-4" style="color: #006400;">កត់ត្រាការកម្ម៉ង់</h2>
             <form id="orderForm" class="space-y-4">
-                <div>
-                    <label for="customerName" class="block text-sm font-medium text-gray-700">ឈ្មោះអតិថិជន:</label>
-                    <select id="customerName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lime-500 focus:ring focus:ring-lime-200 focus:ring-opacity-50 p-2">
-                        <!-- Customer names will be populated by JavaScript -->
-                    </select>
+                <div class="flex items-end gap-2">
+                    <div class="flex-1">
+                        <label for="customerName" class="block text-sm font-medium text-gray-700">ឈ្មោះអតិថិជន:</label>
+                        <select id="customerName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lime-500 focus:ring focus:ring-lime-200 focus:ring-opacity-50 p-2">
+                            </select>
+                    </div>
+                    <button type="button" onclick="showCustomerModal('add')" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full text-xs transition-transform transform hover:scale-105 whitespace-nowrap" style="background-color: #38b000;">
+                        បន្ថែមឈ្មោះអតិថិនថ្មី
+                    </button>
+                    <button type="button" onclick="showCustomerModal('delete')" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full text-xs transition-transform transform hover:scale-105 whitespace-nowrap">
+                        លុបឈ្មោះអតិថិជន
+                    </button>
                 </div>
                 <div>
                     <label for="orderDate" class="block text-sm font-medium text-gray-700">កាលបរិច្ឆេទ:</label>
@@ -125,8 +161,14 @@
                 </div>
                 
                 <div class="flex justify-between items-center mt-6 mb-2">
-                    <h3 class="text-xl font-bold text-lime-700">បញ្ជីផ្លែឈើ</h3>
+                    <h3 class="text-xl font-bold" style="color: #006400;">បញ្ជីផ្លែឈើ</h3>
                     <div class="flex space-x-2">
+                        <button type="button" onclick="showFruitModal('add')" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-4 rounded-full text-xs transition-transform transform hover:scale-105" style="background-color: #38b000;">
+                            ថែមប្រភេទមុខទំនិញ
+                        </button>
+                        <button type="button" onclick="showFruitModal('delete')" class="bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-4 rounded-full text-xs transition-transform transform hover:scale-105">
+                            លុបប្រភេទទំនិញ
+                        </button>
                         <button type="button" id="editPricesBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-4 rounded-full text-xs transition-transform transform hover:scale-105">
                             កែសម្រួលតម្លៃ
                         </button>
@@ -137,35 +179,34 @@
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
-                        <thead class="bg-lime-100">
+                        <thead class="bg-lime-100" style="background-color: #9ef01a;">
                             <tr>
-                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider" style="color: #004b23;">
                                     ជ្រើសរើស
                                 </th>
-                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider" style="color: #004b23;">
                                     ឈ្មោះផ្លែឈើ
                                 </th>
-                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider" style="color: #004b23;">
                                     តម្លៃ (៛/គីឡូ)
                                 </th>
-                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider" style="color: #004b23;">
                                     បរិមាណ (គីឡូ)
                                 </th>
-                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider" style="color: #004b23;">
                                     តម្លៃសរុប (៛)
                                 </th>
                             </tr>
                         </thead>
                         <tbody id="fruitTableBody" class="bg-white divide-y divide-gray-200">
-                            <!-- Fruit rows will be inserted here by JavaScript -->
-                        </tbody>
-                        <tfoot class="bg-lime-100 font-bold">
+                            </tbody>
+                        <tfoot class="bg-lime-100 font-bold" style="background-color: #9ef01a;">
                             <tr>
-                                <td colspan="3" class="px-3 py-3 text-right text-sm text-lime-800">
+                                <td colspan="3" class="px-3 py-3 text-right text-sm text-lime-800" style="color: #004b23;">
                                     តម្លៃសរុប (គីឡូ):
                                 </td>
-                                <td id="totalKilo" class="px-3 py-3 text-left text-sm text-lime-800">0</td>
-                                <td id="totalAmount" class="px-3 py-3 text-left text-sm text-lime-800">0៛</td>
+                                <td id="totalKilo" class="px-3 py-3 text-left text-sm text-lime-800" style="color: #004b23;">0</td>
+                                <td id="totalAmount" class="px-3 py-3 text-left text-sm text-lime-800" style="color: #004b23;">0៛</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -176,13 +217,13 @@
                         សម្អាតទម្រង់
                     </button>
                     <div class="flex gap-4">
-                        <button type="button" id="saveOrderBtn" onclick="saveOrder()" class="bg-lime-600 hover:bg-lime-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105">
+                        <button type="button" id="saveOrderBtn" onclick="saveOrder()" class="bg-lime-600 hover:bg-lime-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105" style="background-color: #007200;">
                             រក្សាទុកការកម្ម៉ង់
                         </button>
-                        <button type="button" id="saveChangesBtn" onclick="saveChanges()" class="hidden bg-lime-600 hover:bg-lime-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105">
+                        <button type="button" id="saveChangesBtn" onclick="saveChanges()" class="hidden bg-lime-600 hover:bg-lime-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105" style="background-color: #007200;">
                             រក្សាទុកការកែប្រែ
                         </button>
-                        <button type="button" id="saveNewInvoiceBtn" onclick="saveNewInvoice()" class="hidden bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105">
+                        <button type="button" id="saveNewInvoiceBtn" onclick="saveNewInvoice()" class="hidden bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105" style="background-color: #008000;">
                             រក្សាទុកវិក្កយបត្រថ្មី
                         </button>
                     </div>
@@ -190,7 +231,6 @@
             </form>
         </div>
 
-        <!-- Content for Tab 2: Invoice -->
         <div id="invoice" class="tab-content">
             <div class="flex justify-between items-center mb-4">
                 <button type="button" onclick="goToOrderTab()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-transform transform hover:scale-105 text-sm">
@@ -200,130 +240,192 @@
                     សម្អាតវិក្កយបត្រ
                 </button>
             </div>
-            <h2 class="text-2xl font-bold text-lime-700 mb-4">វិក្កយបត្រ</h2>
+            <h2 class="text-2xl font-bold mb-4" style="color: #006400;">វិក្កយបត្រ</h2>
             <p class="text-center text-red-500 mb-4">
                 សូមបំពេញទិន្នន័យក្នុងផ្នែក "កត់ត្រាការកម្ម៉ង់" ដើម្បីមើលវិក្កយបត្រ។
             </p>
-            <div id="invoiceContent" class="hidden border border-gray-300 rounded-lg p-6 bg-white shadow-md">
-                <!-- New header layout for PDF export -->
+            <div id="invoiceContent" class="hidden border rounded-lg p-6 bg-white shadow-md" style="border-color: #007200;">
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex-shrink-0 qr-code-box">
-                        <img src="./images/ABA_RIEL.jpg" alt="QR Code" class="mx-auto mb-2 w-24 h-24">
+                        <img src="images/ABA_RIEL.jpg" alt="QR Code" class="mx-auto mb-2 w-24 h-24">
+                        <p class="text-sm text-gray-300 mt-2" style="color: #8500006c;">ABA BANK</p>
                     </div>
                     <div class="text-center flex-1">
-                        <p class="text-lg font-semibold">ឈ្មោះហាង៖ បញ្ញា</p>
-                        <p class="text-sm text-gray-500">អាសយដ្ឋាន៖​​ ផ្សារបឹងកុក</p>
-                        <p class="text-sm text-gray-500">លេខទូរស័ព្ទ៖​ 097 24 27 479 / 070 70 16 68</p>
-                        <h3 class="text-xl font-bold mt-2">វិក្កយបត្រ</h3>
-                        <p class="text-sm mt-2">លេខរៀង: <span id="invoiceNumber"></span> | កាលបរិច្ឆេទ: <span id="invoiceDate"></span></p>
+                        <p class="text-lg font-semibold" style="color: #004b23;">ឈ្មោះហាង៖ បញ្ញា</p>
+                        <p class="text-sm text-gray-600">អាសយដ្ឋាន៖​​ ផ្សារបឹងកុក</p>
+                        <p class="text-sm text-gray-600">លេខទូរស័ព្ទ៖​ 097 24 27 479 / 070 70 16 68</p>
+                        <h3 class="text-xl font-bold mt-2" style="color: #006400;">វិក្កយបត្រ</h3>
+                        <p class="text-sm mt-2">លេខរៀង: <span id="invoiceNumber" class="font-bold text-gray-900" style="color: #850000e1;"></span> | កាលបរិច្ឆេទ: <span id="invoiceDate" class="font-bold text-gray-900"></span></p>
                     </div>
                     <div class="flex-shrink-0 qr-code-box">
-                        <img src="./images/ABA_DOLAR.jpg" alt="QR Code 2" class="mx-auto mb-2 w-24 h-24">
+                        <img src="images/ABA_DOLAR.jpg" alt="QR Code 2" class="mx-auto mb-2 w-24 h-24">
+                        <p class="text-sm text-gray-300 mt-2" style="color: #8500006c;">ABA BANK</p>
                     </div>
                 </div>
 
-                <!-- Customer Info -->
-                <div class="mb-4 mt-2">
-                    <p class="font-semibold">អតិថិជន: <span id="invoiceCustomerName" class="font-normal"></span></p>
+                <div class="mb-4 mt-2 border-b-2 border-dashed border-gray-300 pb-2">
+                    <p class="font-semibold text-gray-800">អតិថិជន: <span id="invoiceCustomerName" class="font-normal text-gray-900"></span></p>
                 </div>
 
-                <!-- Invoice Items Table -->
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                    <table class="min-w-full divide-y divide-gray-300">
+                        <thead class="bg-gray-100" style="background-color: #ccff33;">
                             <tr>
-                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">ល.រ</th>
-                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">ឈ្មោះទំនិញ</th>
-                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">បរិមាណ (គីឡូ)</th>
-                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">ថ្លៃឯកតា</th>
-                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">សរុប</th>
+                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase" style="color: #004b23;">ល.រ</th>
+                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase" style="color: #004b23;">ឈ្មោះទំនិញ</th>
+                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase" style="color: #004b23;">បរិមាណ (គីឡូ)</th>
+                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase" style="color: #004b23;">ថ្លៃឯកតា</th>
+                                <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase" style="color: #004b23;">សរុប</th>
                             </tr>
                         </thead>
                         <tbody id="invoiceItemsTableBody" class="bg-white divide-y divide-gray-200">
-                            <!-- Invoice items will be dynamically inserted here -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
                 
-                <!-- Invoice Totals -->
-                <div class="flex justify-end mt-2">
-                    <div class="w-full md:w-1/2 space-y-2">
-                        <div class="flex justify-between font-bold">
+                <div class="flex justify-end mt-4">
+                    <div class="w-full md:w-1/2 space-y-2 border-t-2 pt-2" style="border-color: #007200;">
+                        <div class="flex justify-between font-bold text-lg" style="color: #004b23;">
                             <span>សរុប (៛):</span>
                             <span id="invoiceTotalAmount">0៛</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Footer with signature placeholders -->
-                <div class="flex justify-between mt-3 text-center text-sm">
+                <div class="flex justify-between mt-6 text-center text-sm">
                     <div>
-                        <p>ហត្ថលេខាអ្នកលក់</p>
+                        <p class="text-gray-700">ហត្ថលេខាអ្នកលក់</p>
                         <div class="w-32 h-14 signature-line mt-4"></div>
                     </div>
                     <div>
-                        <p>ហត្ថលេខាអ្នកដឹក</p>
+                        <p class="text-gray-700">ហត្ថលេខាអ្នកដឹក</p>
                         <div class="w-32 h-14 signature-line mt-4"></div>
                     </div>
                     <div>
-                        <p>ហត្ថលេខាអ្នកទិញ</p>
+                        <p class="text-gray-700">ហត្ថលេខាអ្នកទិញ</p>
                         <div class="w-32 h-14 signature-line mt-4"></div>
                     </div>
                 </div>
             </div>
             
             <div class="flex justify-center mt-6">
-                <button type="button" onclick="exportToPdf()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105">
+                <button type="button" onclick="exportToPdf()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105" style="background-color: #004b23;">
                     បម្លែងទៅជា PDF
                 </button>
             </div>
         </div>
 
-        <!-- Content for Tab 3: Pre-orders -->
         <div id="preorders" class="tab-content">
             <div class="flex justify-between items-center mb-4">
                 <button type="button" onclick="goToOrderTab()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-transform transform hover:scale-105 text-sm">
                     ត្រលប់ក្រោយ
                 </button>
             </div>
-            <h2 class="text-2xl font-bold text-lime-700 mb-4">បញ្ជីកម្ម៉ង់មុន</h2>
+            <h2 class="text-2xl font-bold mb-4" style="color: #006400;">បញ្ជីកម្ម៉ង់មុន</h2>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
-                    <thead class="bg-lime-100">
+                    <thead class="bg-lime-100" style="background-color: #9ef01a;">
                         <tr>
-                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">ល.រ</th>
-                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">ម៉ោង</th>
-                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">ឈ្មោះអតិថិជន</th>
-                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">បញ្ជីទំនិញ</th>
-                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">តម្លៃសរុប (៛)</th>
-                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase">សកម្មភាព</th>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase" style="color: #004b23;">ល.រ</th>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase" style="color: #004b23;">ម៉ោង</th>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase" style="color: #004b23;">ឈ្មោះអតិថិជន</th>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase" style="color: #004b23;">បញ្ជីទំនិញ</th>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase" style="color: #004b23;">តម្លៃសរុប (៛)</th>
+                            <th scope="col" class="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase" style="color: #004b23;">សកម្មភាព</th>
                         </tr>
                     </thead>
                     <tbody id="preordersTableBody" class="bg-white divide-y divide-gray-200">
-                        <!-- Pre-order rows will be inserted here by JavaScript -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Custom Message Box/Modal -->
     <div id="messageBox" class="message-box bg-white p-6 rounded-xl shadow-2xl border border-gray-200 text-center w-80">
         <p id="messageText" class="text-gray-800 text-lg mb-4"></p>
-        <button onclick="hideMessage()" class="bg-lime-600 hover:bg-lime-700 text-white px-6 py-2 rounded-full font-bold transition-colors">
+        <button onclick="hideMessage()" class="bg-lime-600 hover:bg-lime-700 text-white px-6 py-2 rounded-full font-bold transition-colors" style="background-color: #008000;">
             យល់ព្រម
         </button>
     </div>
 
-    <!-- Container for PDF export content only -->
-    <div id="pdf-container" class="pdf-export-container">
-        <!-- The cloned invoice content will be rendered here for PDF export -->
+    <div id="customerModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideCustomerModal()">&times;</span>
+            <h2 id="customerModalTitle" class="text-2xl font-bold text-lime-700 mb-4" style="color: #006400;"></h2>
+            <div id="addCustomerForm" class="space-y-4">
+                <div>
+                    <label for="newCustomerName" class="block text-sm font-medium text-gray-700">ឈ្មោះអតិថិជនថ្មី:</label>
+                    <input type="text" id="newCustomerName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="បញ្ចូលឈ្មោះអតិថិជន...">
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" onclick="saveNewCustomer()" class="bg-lime-600 hover:bg-lime-700 text-white font-bold py-2 px-6 rounded-full shadow-lg" style="background-color: #008000;">
+                        រក្សារទុក
+                    </button>
+                </div>
+            </div>
+            <div id="deleteCustomerForm" class="space-y-4 hidden">
+                <div>
+                    <label for="deleteCustomerName" class="block text-sm font-medium text-gray-700">ជ្រើសរើសអតិថិជនដែលត្រូវលុប:</label>
+                    <select id="deleteCustomerName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                    </select>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" onclick="deleteSelectedCustomer()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-lg">
+                        លុប
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fruitModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="hideFruitModal()">&times;</span>
+            <h2 id="fruitModalTitle" class="text-2xl font-bold text-lime-700 mb-4" style="color: #006400;"></h2>
+            <div id="addFruitForm" class="space-y-4">
+                <div>
+                    <label for="newFruitName" class="block text-sm font-medium text-gray-700">ឈ្មោះផ្លែឈើ:</label>
+                    <input type="text" id="newFruitName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="បញ្ចូលឈ្មោះផ្លែឈើ...">
+                </div>
+                <div>
+                    <label for="newFruitPrice" class="block text-sm font-medium text-gray-700">តម្លៃ (៛/គីឡូ):</label>
+                    <input type="number" id="newFruitPrice" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="បញ្ចូលតម្លៃ...">
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" onclick="saveNewFruit()" class="bg-lime-600 hover:bg-lime-700 text-white font-bold py-2 px-6 rounded-full shadow-lg" style="background-color: #008000;">
+                        រក្សារទុក
+                    </button>
+                </div>
+            </div>
+            <div id="deleteFruitForm" class="space-y-4 hidden">
+                <div>
+                    <label for="deleteFruitName" class="block text-sm font-medium text-gray-700">ជ្រើសរើសផ្លែឈើដែលត្រូវលុប:</label>
+                    <select id="deleteFruitName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+                    </select>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" onclick="deleteSelectedFruit()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-lg">
+                        លុប
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
 
+    <div id="pdf-container" class="pdf-export-container">
+        </div>
+
+
     <script>
-        // Array of customer names from the user's request
-        const customerNames = [
+        // Data keys for localStorage
+        const customerNamesKey = 'fruitCustomerNames';
+        const fruitDataKey = 'fruitProducts';
+        const localStorageKey = 'fruitPreorders';
+        const lastOrderNumberKey = 'lastOrderNumber';
+
+        // Initial default data if not found in localStorage
+        const defaultCustomerNames = [
             "ចែមំុ", "ចែឆេង", "ឣុីមួយ", "ឣុីងិម", "ចែឣូន", "ចែពេជ្រ", "ចែទន្លេបិទ", "ចែហួ", "ចែនី", "ចែភារ៉ា",
             "ចែភ័ក្រ្ត", "ចែហ៊ាង", "ឣ៊ំទន្លេបិទ", "ឣុីខេង", "ឣុីភាពវត្ថឣង្គរ", "ឣុីណាង", "ចែនាងផ្សារធំ", "ស្រីលីស",
             "ឣុីណាផ្សារធំ", "ចែឣូនផ្សារធំ", "ចែសុីណាត", "ចែផល", "ប្ឣូនចែផល", "ឣ៊ំហាន", "ឣុីធី", "ឣុីផល្លា",
@@ -332,9 +434,7 @@
             "ចែធា", "ចែឡែន", "ឣុីធឿន", "ឣុីមំុផ្សារធំ", "ចែឡា", "តាកៅ", "ចែភាពផ្សារធំ", "ចែថុល 7មករា",
             "ចែលាប", "ចែនិត", "ចែឣ៊ាង", "ចែនាងបឹងកុក", "ឣុីមំុបឹងកុក", "យាយហ៊ន់", "យាយថេង", "ឣ៊ំណាង", "ឣុីចន្ថា"
         ];
-        
-        // Data for fruits with default prices in Riel (៛)
-        const fruitData = [
+        const defaultFruitData = [
             { name: "មៀនខ្មែរ", price: 20000 },
             { name: "មៀនយួន", price: 20000 },
             { name: "ស្រកានាគស", price: 7000 },
@@ -364,11 +464,22 @@
         ];
 
         let selectedOrder = null;
-        let editingOrderId = null; // Variable to store the ID of the order being edited
-        const localStorageKey = 'fruitPreorders';
-        const lastOrderNumberKey = 'lastOrderNumber';
-        const customPricesKey = 'customFruitPrices';
+        let editingOrderId = null;
 
+        // Function to get and set data from localStorage, with default values
+        function getLocalStorageData(key, defaultValue) {
+            const data = localStorage.getItem(key);
+            if (data) {
+                return JSON.parse(data);
+            }
+            localStorage.setItem(key, JSON.stringify(defaultValue));
+            return defaultValue;
+        }
+
+        // Load initial data
+        let customerNames = getLocalStorageData(customerNamesKey, defaultCustomerNames);
+        let fruitData = getLocalStorageData(fruitDataKey, defaultFruitData);
+        
         // Function to show a custom message box
         function showMessage(message) {
             document.getElementById('messageText').textContent = message;
@@ -380,28 +491,147 @@
             document.getElementById('messageBox').style.display = 'none';
         }
 
-        // Function to load custom prices from localStorage and update fruitData
-        function loadPricesFromStorage() {
-            const storedPrices = JSON.parse(localStorage.getItem(customPricesKey)) || {};
-            fruitData.forEach(fruit => {
-                if (storedPrices[fruit.name]) {
-                    fruit.price = storedPrices[fruit.name];
-                }
+        // Function to show the customer modal (add or delete)
+        function showCustomerModal(mode) {
+            const modal = document.getElementById('customerModal');
+            const title = document.getElementById('customerModalTitle');
+            const addForm = document.getElementById('addCustomerForm');
+            const deleteForm = document.getElementById('deleteCustomerForm');
+            
+            if (mode === 'add') {
+                title.textContent = 'បន្ថែមឈ្មោះអតិថិជនថ្មី';
+                addForm.classList.remove('hidden');
+                deleteForm.classList.add('hidden');
+                document.getElementById('newCustomerName').value = '';
+            } else if (mode === 'delete') {
+                title.textContent = 'លុបឈ្មោះអតិថិជន';
+                addForm.classList.add('hidden');
+                deleteForm.classList.remove('hidden');
+                populateCustomerDeleteDropdown();
+            }
+            modal.style.display = 'block';
+        }
+
+        // Function to hide the customer modal
+        function hideCustomerModal() {
+            document.getElementById('customerModal').style.display = 'none';
+        }
+
+        // Function to save a new customer
+        function saveNewCustomer() {
+            const newName = document.getElementById('newCustomerName').value.trim();
+            if (newName && !customerNames.includes(newName)) {
+                customerNames.push(newName);
+                customerNames.sort(); // Sort alphabetically
+                localStorage.setItem(customerNamesKey, JSON.stringify(customerNames));
+                populateCustomerDropdown();
+                hideCustomerModal();
+                showMessage('ឈ្មោះអតិថិជនថ្មីត្រូវបានរក្សាទុកដោយជោគជ័យ!');
+            } else {
+                showMessage('សូមបញ្ចូលឈ្មោះអតិថិជនថ្មីដែលមិនទាន់មានក្នុងបញ្ជី។');
+            }
+        }
+        
+        // Function to populate the customer delete dropdown
+        function populateCustomerDeleteDropdown() {
+            const select = document.getElementById('deleteCustomerName');
+            select.innerHTML = '';
+            customerNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                select.appendChild(option);
             });
         }
         
-        // Function to save custom prices to localStorage
-        function savePricesToStorage() {
-            const customPrices = {};
-            document.querySelectorAll('.price-input').forEach(input => {
-                const index = input.dataset.index;
-                const newPrice = parseFloat(input.value);
-                if (!isNaN(newPrice) && newPrice >= 0) {
-                    customPrices[fruitData[index].name] = newPrice;
+        // Function to delete a selected customer
+        function deleteSelectedCustomer() {
+            const nameToDelete = document.getElementById('deleteCustomerName').value;
+            if (nameToDelete) {
+                const updatedNames = customerNames.filter(name => name !== nameToDelete);
+                customerNames = updatedNames;
+                localStorage.setItem(customerNamesKey, JSON.stringify(customerNames));
+                populateCustomerDropdown();
+                hideCustomerModal();
+                showMessage(`អតិថិជន "${nameToDelete}" ត្រូវបានលុបដោយជោគជ័យ!`);
+            } else {
+                showMessage('សូមជ្រើសរើសអតិថិជនដើម្បីលុប។');
+            }
+        }
+
+        // Function to show the fruit modal (add or delete)
+        function showFruitModal(mode) {
+            const modal = document.getElementById('fruitModal');
+            const title = document.getElementById('fruitModalTitle');
+            const addForm = document.getElementById('addFruitForm');
+            const deleteForm = document.getElementById('deleteFruitForm');
+
+            if (mode === 'add') {
+                title.textContent = 'ថែមប្រភេទមុខទំនិញ';
+                addForm.classList.remove('hidden');
+                deleteForm.classList.add('hidden');
+                document.getElementById('newFruitName').value = '';
+                document.getElementById('newFruitPrice').value = '';
+            } else if (mode === 'delete') {
+                title.textContent = 'លុបប្រភេទទំនិញ';
+                addForm.classList.add('hidden');
+                deleteForm.classList.remove('hidden');
+                populateFruitDeleteDropdown();
+            }
+            modal.style.display = 'block';
+        }
+
+        // Function to hide the fruit modal
+        function hideFruitModal() {
+            document.getElementById('fruitModal').style.display = 'none';
+        }
+
+        // Function to save a new fruit
+        function saveNewFruit() {
+            const newName = document.getElementById('newFruitName').value.trim();
+            const newPrice = parseFloat(document.getElementById('newFruitPrice').value);
+            if (newName && !isNaN(newPrice) && newPrice >= 0) {
+                const existingFruit = fruitData.find(f => f.name === newName);
+                if (existingFruit) {
+                    showMessage('ផ្លែឈើនេះមានរួចហើយ។ សូមកែតម្លៃជំនួសវិញ។');
+                } else {
+                    fruitData.push({ name: newName, price: newPrice });
+                    fruitData.sort((a, b) => a.name.localeCompare(b.name, 'km-KH')); // Sort alphabetically
+                    localStorage.setItem(fruitDataKey, JSON.stringify(fruitData));
+                    renderFruitTable();
+                    hideFruitModal();
+                    showMessage('ប្រភេទមុខទំនិញថ្មីត្រូវបានរក្សាទុកដោយជោគជ័យ!');
                 }
+            } else {
+                showMessage('សូមបំពេញព័ត៌មានផ្លែឈើឲ្យបានត្រឹមត្រូវ។');
+            }
+        }
+        
+        // Function to populate the fruit delete dropdown
+        function populateFruitDeleteDropdown() {
+            const select = document.getElementById('deleteFruitName');
+            select.innerHTML = '';
+            fruitData.forEach(fruit => {
+                const option = document.createElement('option');
+                option.value = fruit.name;
+                option.textContent = fruit.name;
+                select.appendChild(option);
             });
-            localStorage.setItem(customPricesKey, JSON.stringify(customPrices));
-            showMessage('តម្លៃត្រូវបានរក្សាទុកដោយជោគជ័យ!');
+        }
+
+        // Function to delete a selected fruit
+        function deleteSelectedFruit() {
+            const nameToDelete = document.getElementById('deleteFruitName').value;
+            if (nameToDelete) {
+                const updatedData = fruitData.filter(fruit => fruit.name !== nameToDelete);
+                fruitData = updatedData;
+                localStorage.setItem(fruitDataKey, JSON.stringify(fruitData));
+                renderFruitTable();
+                hideFruitModal();
+                showMessage(`ប្រភេទមុខទំនិញ "${nameToDelete}" ត្រូវបានលុបដោយជោគជ័យ!`);
+            } else {
+                showMessage('សូមជ្រើសរើសផ្លែឈើដើម្បីលុប។');
+            }
         }
 
         // Function to toggle price editing mode
@@ -434,10 +664,22 @@
         document.getElementById('editPricesBtn').addEventListener('click', () => togglePriceEditing(true));
         document.getElementById('savePricesBtn').addEventListener('click', () => {
             savePricesToStorage();
-            loadPricesFromStorage(); // Reload data with new prices
-            renderFruitTable(); // Re-render the table
+            renderFruitTable(); // Re-render the table to show updated prices
             togglePriceEditing(false); // Disable editing mode
         });
+
+        // Function to save custom prices to localStorage
+        function savePricesToStorage() {
+            document.querySelectorAll('.price-input').forEach(input => {
+                const index = input.dataset.index;
+                const newPrice = parseFloat(input.value);
+                if (!isNaN(newPrice) && newPrice >= 0) {
+                    fruitData[index].price = newPrice;
+                }
+            });
+            localStorage.setItem(fruitDataKey, JSON.stringify(fruitData));
+            showMessage('តម្លៃត្រូវបានរក្សាទុកដោយជោគជ័យ!');
+        }
 
         // Function to create and render the fruit table in the order form
         function renderFruitTable() {
@@ -448,7 +690,7 @@
                 row.className = 'hover:bg-gray-50 transition-colors duration-150';
                 row.innerHTML = `
                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                        <input type="checkbox" id="fruitCheck${index}" data-index="${index}" class="form-checkbox h-4 w-4 text-lime-600 rounded">
+                        <input type="checkbox" id="fruitCheck${index}" data-index="${index}" class="form-checkbox h-4 w-4 rounded" style="color: #008000;">
                     </td>
                     <td class="px-3 py-2 whitespace-nowrap text-sm font-semibold text-gray-900">
                         ${fruit.name}
@@ -510,11 +752,9 @@
         
         // Function to reset the order form
         function resetForm() {
-            // Reset customer and date fields
             document.getElementById('customerName').value = '';
             document.getElementById('orderDate').value = '';
 
-            // Reset fruit table inputs and checkboxes
             document.querySelectorAll('#fruitTableBody tr').forEach(row => {
                 const checkbox = row.querySelector('input[type="checkbox"]');
                 const kiloInput = row.querySelector('.kilo-input');
@@ -528,6 +768,7 @@
             editingOrderId = null;
             document.getElementById('saveOrderBtn').classList.remove('hidden');
             document.getElementById('saveChangesBtn').classList.add('hidden');
+            document.getElementById('saveNewInvoiceBtn').classList.add('hidden');
         }
 
         // Function to save a new order
@@ -565,7 +806,7 @@
             }
 
             const newOrder = {
-                id: Date.now(), // Unique ID for the order
+                id: Date.now(),
                 customerName,
                 orderDate,
                 orderNumber,
@@ -575,21 +816,17 @@
                 timestamp: new Date().toISOString()
             };
             
-            // Get existing orders, add new one, and save to localStorage
             const existingOrders = JSON.parse(localStorage.getItem(localStorageKey)) || [];
             existingOrders.push(newOrder);
             localStorage.setItem(localStorageKey, JSON.stringify(existingOrders));
 
-            // Update the last order number
             const currentOrderNum = parseInt(orderNumber.replace('N', ''), 10);
             localStorage.setItem(lastOrderNumberKey, currentOrderNum);
 
             showMessage('ការកម្ម៉ង់ត្រូវបានរក្សាទុកដោយជោគជ័យ!');
             
-            // Set the new order as selected for invoice tab
             selectedOrder = newOrder;
 
-            // Switch to invoice tab and render it
             document.querySelector('[data-tab="invoice"]').click();
         }
 
@@ -636,7 +873,7 @@
             const orderIndex = orders.findIndex(order => order.id === editingOrderId);
             if (orderIndex !== -1) {
                 orders[orderIndex] = {
-                    ...orders[orderIndex], // Keep existing properties
+                    ...orders[orderIndex],
                     customerName,
                     orderDate,
                     orderNumber,
@@ -687,7 +924,6 @@
                 return;
             }
         
-            // Create a temporary order object for the invoice
             const tempOrder = {
                 customerName,
                 orderDate,
@@ -708,15 +944,12 @@
             const orderToEdit = orders.find(order => order.id === id);
             
             if (orderToEdit) {
-                // Set the form fields
                 document.getElementById('customerName').value = orderToEdit.customerName;
                 document.getElementById('orderDate').value = orderToEdit.orderDate;
                 document.getElementById('orderNumber').value = orderToEdit.orderNumber;
                 
-                // Reset the fruit table first
                 renderFruitTable();
 
-                // Populate fruit table from the order
                 orderToEdit.items.forEach(item => {
                     const fruitIndex = fruitData.findIndex(f => f.name === item.name);
                     if (fruitIndex !== -1) {
@@ -767,12 +1000,10 @@
             if (invoiceContentDiv) invoiceContentDiv.classList.remove('hidden');
             if (placeholderText) placeholderText.classList.add('hidden');
             
-            // Populate customer and order info
             if (document.getElementById('invoiceCustomerName')) document.getElementById('invoiceCustomerName').textContent = selectedOrder.customerName;
             if (document.getElementById('invoiceDate')) document.getElementById('invoiceDate').textContent = selectedOrder.orderDate;
             if (document.getElementById('invoiceNumber')) document.getElementById('invoiceNumber').textContent = selectedOrder.orderNumber;
             
-            // Populate invoice items
             const invoiceTableBody = document.getElementById('invoiceItemsTableBody');
             if (invoiceTableBody) {
                 invoiceTableBody.innerHTML = '';
@@ -790,7 +1021,6 @@
                 });
             }
             
-            // Populate total amount
             if (totalAmountSpan) totalAmountSpan.textContent = `${selectedOrder.totalAmount.toLocaleString('km-KH')}៛`;
         }
         
@@ -815,7 +1045,6 @@
                 return;
             }
             
-            // Sort orders by timestamp in descending order (newest first)
             orders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
             orders.forEach((order) => {
@@ -864,7 +1093,6 @@
             }
         }
 
-
         // Function to go back to the order tab
         function goToOrderTab() {
             document.querySelector('[data-tab="order"]').click();
@@ -888,7 +1116,6 @@
                 return;
             }
             
-            // Populate the invoice content for cloning
             const invoiceContentDiv = document.getElementById('invoiceContent');
             if (invoiceContentDiv) {
                 document.getElementById('invoiceCustomerName').textContent = orderToExport.customerName;
@@ -911,11 +1138,9 @@
                 document.getElementById('invoiceTotalAmount').textContent = `${orderToExport.totalAmount.toLocaleString('km-KH')}៛`;
             }
 
-            // Create a temporary element for PDF export
             const pdfContainer = document.getElementById('pdf-container');
             const invoiceHtml = invoiceContentDiv.innerHTML;
 
-            // Create two copies of the invoice content
             const invoice1 = document.createElement('div');
             invoice1.classList.add('pdf-invoice-content');
             invoice1.innerHTML = invoiceHtml;
@@ -924,10 +1149,9 @@
             invoice2.classList.add('pdf-invoice-content');
             invoice2.innerHTML = invoiceHtml;
             
-            pdfContainer.innerHTML = ''; // Clear previous content
+            pdfContainer.innerHTML = '';
             pdfContainer.appendChild(invoice1);
             
-            // Add dotted divider
             const divider = document.createElement('div');
             divider.classList.add('dotted-divider');
             pdfContainer.appendChild(divider);
@@ -935,9 +1159,8 @@
             pdfContainer.appendChild(invoice2);
 
             pdfContainer.classList.add('visible');
-            document.getElementById('main-app').style.display = 'none'; // Hide main app
+            document.getElementById('main-app').style.display = 'none';
 
-            // Use a slight delay to ensure all content is rendered before conversion
             setTimeout(() => {
                 html2pdf().set({
                     margin: 0,
@@ -948,15 +1171,15 @@
                         logging: false,
                         scrollY: 0,
                         scrollX: 0,
-                        useCORS: true // This is crucial for images to load correctly
+                        useCORS: true
                     },
                     jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
                 }).from(pdfContainer).save().finally(() => {
-                    pdfContainer.innerHTML = ''; // Clean up
+                    pdfContainer.innerHTML = '';
                     pdfContainer.classList.remove('visible');
-                    document.getElementById('main-app').style.display = 'block'; // Show main app again
+                    document.getElementById('main-app').style.display = 'block';
                 });
-            }, 100); // 100ms delay
+            }, 100);
         }
 
         // Function to populate the customer name dropdown
@@ -1010,21 +1233,22 @@
             button.addEventListener('click', () => {
                 const tab = button.dataset.tab;
                 
-                // Hide all tab contents
                 document.querySelectorAll('.tab-content').forEach(content => {
                     content.classList.remove('active');
                 });
                 
-                // Deactivate all tab buttons
                 document.querySelectorAll('.tab-button').forEach(btn => {
-                    btn.classList.remove('bg-lime-100', 'text-lime-800', 'border-lime-600');
-                    btn.classList.add('bg-white', 'text-gray-500', 'hover:bg-lime-50');
+                    btn.style.backgroundColor = '';
+                    btn.style.color = '#007200';
+                    btn.style.borderColor = 'transparent';
+                    btn.classList.add('hover:bg-lime-50');
                 });
                 
-                // Activate the selected tab button and content
                 document.getElementById(tab).classList.add('active');
-                button.classList.add('bg-lime-100', 'text-lime-800', 'border-lime-600');
-                button.classList.remove('bg-white', 'text-gray-500', 'hover:bg-lime-50');
+                button.style.backgroundColor = '#70e000';
+                button.style.color = 'white';
+                button.style.borderColor = '#008000';
+                button.classList.remove('hover:bg-lime-50');
                 
                 if (tab === 'invoice') {
                     renderInvoice();
@@ -1038,7 +1262,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             populateCustomerDropdown();
             loadAndSetOrderNumber();
-            loadPricesFromStorage();
             renderFruitTable();
         });
     </script>
