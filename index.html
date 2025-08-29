@@ -134,7 +134,7 @@
                     <div class="flex-1">
                         <label for="customerName" class="block text-sm font-medium text-gray-700">ឈ្មោះអតិថិជន:</label>
                         <select id="customerName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lime-500 focus:ring focus:ring-lime-200 focus:ring-opacity-50 p-2">
-                            </select>
+                        </select>
                     </div>
                     <button type="button" onclick="showCustomerModal('add')" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full text-xs transition-transform transform hover:scale-105 whitespace-nowrap" style="background-color: #38b000;">
                         បន្ថែមឈ្មោះអតិថិនថ្មី
@@ -251,7 +251,7 @@
                         <p class="text-sm text-gray-300 mt-2" style="color: #8500006c;">ABA BANK</p>
                     </div>
                     <div class="text-center flex-1">
-                        <p class="text-lg font-semibold" style="color: #004b23;">ឈ្មោះហាង៖ បញ្ញា</p>
+                        <p class="text-lg font-semibold" style="color: #004b23;">បញ្ញា</p>
                         <p class="text-sm text-gray-600">អាសយដ្ឋាន៖​​ ផ្សារបឹងកុក</p>
                         <p class="text-sm text-gray-600">លេខទូរស័ព្ទ៖​ 097 24 27 479 / 070 70 16 68</p>
                         <h3 class="text-xl font-bold mt-2" style="color: #006400;">វិក្កយបត្រ</h3>
@@ -264,7 +264,15 @@
                 </div>
 
                 <div class="mb-4 mt-2 border-b-2 border-dashed border-gray-300 pb-2">
-                    <p class="font-semibold text-gray-800">អតិថិជន: <span id="invoiceCustomerName" class="font-normal text-gray-900"></span></p>
+                    <p class="font-semibold text-gray-800 flex items-center justify-between">
+                        <span>អតិថិជន: <span id="invoiceCustomerName" class="font-normal text-gray-900"></span></span>
+                        <span class="flex items-center gap-1" style="color: #4267B2;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-facebook" viewBox="0 0 16 16">
+                                <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75v-1.88c0-2.007 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.993h-1.013c-.98 0-1.29.61-1.29 1.25v1.51h2.218l-.354 2.036h-1.864v5.625C13.07 15.397 16 12.067 16 8.049z"/>
+                            </svg>
+                            <span class="text-sm font-medium">Ah Panha kpc</span>
+                        </span>
+                    </p>
                 </div>
 
                 <div class="overflow-x-auto">
